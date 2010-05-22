@@ -1,0 +1,41 @@
+=== 2006.04.18 == 0.4.6 ===
+* Added a ManagedSprinkleMixin, as it is often annoying to have
+  extra things implementing an interface
+
+=== 2006.04.04 == 0.4.5 ===
+* Updated README.txt
+* Wiki works now too, btw, http://an9.org/w/SprinklesPy
+
+=== 2006.04.02 == 0.4.4 ===
+* Fixed a bug in fromPackage
+
+=== 2006.04.01 == 0.4.3 ===
+* Bumping the version number for PyPI
+
+=== 2006.04.01 == 0.4.2 ===
+* Breaking some more stuff, removing Sprinkle classes, we're just going
+  to use interfaces from now on, and your classes have to be new-style
+* Added caching support!
+* Moved to setuptools, releasing eggs and things
+* * Currently there are problems getting data out of zipfiles, so
+    if you are distributing plugins via eggs, make sure to set zip_safe=False
+
+=== 2006.03.31 == 0.4.1 ===
+* Added more debug stuff, removed the use of issprinkle
+
+=== 2006.03.15 === 0.4
+* Bam! Added a Manager that provide a helper for common module operations
+* Added aliases for most of the functions, basically changed naming scheme
+* Bam! Switched to using zope.interface, still backwards compatible, but not
+for long
+
+=== 2006.01.23 === 0.3.1
+* Fixed a bug where a file that failed to open was being closed() 
+* Added some more debug to the _import function
+
+=== 2005.10.27 === 0.3
+* Added from_mod
+* Added from_mod_dir
+* Added some unit tests
+* Removed the dependency on _export, now only used to specify classes
+  explicitly.  

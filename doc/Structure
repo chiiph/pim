@@ -1,0 +1,117 @@
+UI Lib:
+	- curses
+
+Concepts:
+	- state: A state in which the editing is in
+	- action: An action to perform in the text
+
+Plugins:
+Every actual editing functionality is a plugin.
+Every plugin has a function run, that recieves the current text.
+
+There are 2 categories of plugins:
+	- state plugins: the run function returns a state and alternatively leaves the text in "action mode".
+	- action plugins: performs an action in the text.
+
+	State plugins can interact with action plugins if they leave the text object in action mode and set 
+the PostAction according to the needs of the state plugin in case of a loop type plugin.
+
+Keyboard shortcuts:
+	- Alt+L: command line
+	- Alt+P+char: Action mode referenced by char
+	- Alt+O+char: State mode referenced by char
+	- Esc: Switch to the current mode (CHECK)
+	- Alt+I: Hide notifier
+
+Command structure:
+<command-name>,param1,...,paramN
+
+	<command-name> = any alphanumeric char, '-' and '_'
+	paramN = "String" | "python regex" | variable name
+
+Classes:
+	Text: Holds the current text in edition.
+		Attrs:
+			text: string
+			mode: pointer to Action
+			postAction: TODO
+			selectedText: (init, end)
+			cursor: int
+			fileName: string
+		Methods:
+			...
+	
+	Plugger:
+		Attrs:
+			list: list of plugins
+
+		Methods:
+			loadAll(): loads all the plugins
+	
+	Action:
+		Attr:
+			lastState: string
+			reference: char
+			keyCombo: KeyCombo
+		Methods:
+			register(): registers the action in the editor
+			parseParams(): Parses the parameters passed to the action
+			run(Text, param string): performs the action in the text
+			getState(): returns a message of the last applied action
+
+	KeyCombo:
+		Methods:
+			setKey(char)
+			setModifier(enum{Ctrl,Shift,Alt})
+	
+	CommandLine:
+		Attr:
+			...
+		Methods:
+			...
+
+		Comments:
+			Parser related code
+	
+	Editor:
+		Attr:
+			list of Text: Holds every text in edition
+			plugger: handles the plugins
+			currentAction: the current Action being performed
+
+		Methods
+			loadAllPlugins(): registers every plugin in the plugin directory
+			main(): main loop. Here it'll set the default action
+			runCmd(string): runs a command
+		
+		Comments:
+			It'll have a command line at the bottom and a main canvas. Ocationally it'll have a notifier
+			window at the bottom right with the last message.
+
+Directory Structure:
+	doc: Documentation
+	src: Source Code
+		plugins: All the plugins
+			state: All the state plugins
+			action: All the action plugins
+
+Actions:
+The idea is that everything is an action. From adding a new char to the text, to make complex replacements
+or editing modes. The editor will have a default action, in this case it'll be the "add/del char" action.
+The basic actions to implement will be: 
+	- add/del a char (paste mode)
+	- add/del a char (keep indentation)
+	- save
+	- openFile
+	- select text
+	- copy
+	- delete selected
+	- paste
+	- cut
+
+TODO: see a way of how actions could use other actions
+
+Configuration files:
+	actions.conf: Holds the class names of all the action plugins
+	states.conf: Holds the class names of all the state plugins
+For now the files will be called exactly as their class name. (TODO: find a generic way of solving this)

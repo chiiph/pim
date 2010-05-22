@@ -1,0 +1,17 @@
+Metadata-Version: 1.0
+Name: sprinkles
+Version: 0.4.6
+Summary: Plugins! Easy!
+Home-page: http://an9.org/w/SprinklesPy
+Author: Andy Smith
+Author-email: sprinkles_py@anarkystic.com
+License: MIT License
+Description: A library to assist you in making your applications easily support plugins
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development
