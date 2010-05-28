@@ -1,3 +1,18 @@
+#    Pim: A vim/emacs like text editor
+#    Copyright (C) 2010 Tomas Touceda
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 2 as 
+#    published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from os import linesep
 from core.editor import Editor
 
@@ -16,7 +31,7 @@ class Text:
 	def load(self, fileName):
 		""" Loads the fileName text """
 		self.fileName= fileName
-		self.fd= open(fileName, "r+")
+		self.fd= open(fileName, "rw+")
 		self.text= self.fd.read()
 		self.lines= self.text.split(linesep)
 	

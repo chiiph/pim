@@ -1,22 +1,26 @@
+#    Pim: A vim/emacs like text editor
+#    Copyright (C) 2010 Tomas Touceda
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 2 as 
+#    published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import string,curses,sys,traceback
 import curses.panel
 from core.editor import Editor
 from core.text import Text
 
-def ctrl(key):
-	return ord(key)-64
-	
-def _ctoi(c):
-    if type(c) == type(""):
-        return ord(c)
-    else:
-        return c
-
-def alt(c):
-    if type(c) == type(""):
-        return chr(_ctoi(c) | 0x80)
-    else:
-        return _ctoi(c) | 0x80
+# list of modifier keys to handle multiple keystrokes
+modifierkeys= [0x1b #alt
+	]
 
 class Pim:
 	def __init__(self, scr):
@@ -28,33 +32,49 @@ class Pim:
 		self.editor.maxrow= self.my
 		self.editor.maxcol= self.mx
 
+		### DEBUGGING CODE ###
 		txt= Text(self.editor)
 		txt.load("test")
 		self.editor.texts.append(txt)
 		self.editor.lineText= Text(self.editor)
+		### END DEBUGGING  ###
 
 		self.createUi()
 		
 		while 1:
-			if self.editor.activeMode.mode == 1:
+			if self.editor.activeMode.mode == 1: # mode 1 interacts with the cmdLine window
 				self.cmdLine.addstr(0, 0, self.editor.lineText.text)
-			elif self.editor.activeMode.mode == 0:
+			elif self.editor.activeMode.mode == 0: # mode 0 interacts with the display window
 				self.display.addstr(0, 0, self.editor.getText(self.topLine, self.topLine+self.my))
-#            self.display.addstr(0, 0, self.editor.texts[0].getText(1, 20))
-#            self.cmdLine.addstr(0, 0, "Mode:"+curses.keyname(self.editor.lastKey)+":")
-			self.status.addstr(0, 0, "Mode: "+self.editor.activeMode.name)
-#            self.display.addstr(0, 0, self.editor.texts[0].text)
 			
-			self.refresh()
-			self.editor.lastKey= self.stdscr.getch()
-			if not self.editor.changeMode():
+			self.status.addstr(0, 0, "Mode: "+self.editor.activeMode.name) # Debug for now, may be it'll stay as status
+			
+			self.refresh() # refreshes the content in all the windows
+			self.editor.lastKey= self.stdscr.getch() # get the last key pressed
+			
+			# concat the last key with the sequence that could mean to change the mode
+			self.editor.lastKeys+= str(self.editor.lastKey) 
+			# if the last key pressed is in the modifier list (alt, ...) the clean the sequence
+			if self.editor.lastKey in modifierkeys:
+				self.editor.lastKeys= str(self.editor.lastKey)
+				self.editor.lastKey= ""
+
+			# change the mode if needed
+			changed= self.editor.changeMode()
+			if not changed:
+				# if we don't change the mode, then pass the keys to the current mode
 				if self.editor.activeMode.mode == 1:
 					self.editor.runLine()
 				elif self.editor.activeMode.mode == 0:
 					self.editor.run()
-
+			else:
+				# if we change the mode, then the sequence must be clear
+				self.editor.lastKeys= ""
+			
+			### DEBUG CODE ###
 			if self.editor.lastKey == ord('q'): # FIXME: provisory exit
 				break  # Exit the while()
+			### DEBUG CODE ###
 
 	def createUi(self):
 		self.display = curses.newwin(self.my-2, self.mx-1, 0, 0)
@@ -77,18 +97,12 @@ class Pim:
 	def refresh(self):
 		if self.editor.activeMode.mode == 1:
 			self.cmdLine.move(self.editor.row, self.editor.col)
-		else:
+			self.cmdLine.clrtoeol()
+		elif self.editor.activeMode.mode == 0:
 			self.display.move(self.editor.row, self.editor.col)
 
-#        self.stdscr.refresh()
-#        self.cmdLine.refresh()
-#        self.display.refresh()
 		curses.panel.update_panels()
 		curses.doupdate()
-	
-	def test(self):
-		self.cmdLine.addstr(0,0,"test cmdline")
-		self.display.addstr(0,0,"test display")
 	
 if __name__=='__main__':
 	stdscr=curses.initscr()
@@ -112,18 +126,3 @@ if __name__=='__main__':
 		curses.nocbreak()
 		curses.endwin() 
 		traceback.print_exc()           # Print the exception
-
-#    ed= Editor()
-#    text= Text()
-#    text.text= "Este es un texto de prueba"
-#    text.cursor= 3
-#    ed.lastKey= ord('y')
-#    text.debug(0,1)
-#    print "Editing: Add char y..."
-#    ed.actions["edit"].run(text).debug(0,1)
-#    ed.lastKey= 263
-#    print "Editing: Erease char with backspace..."
-#    ed.actions["edit"].run(text).debug(0,1)
-#    ed.lastKey= 330
-#    print "Editing: Erease char with delete..."
-#    ed.actions["edit"].run(text).debug(0,1)

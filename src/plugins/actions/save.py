@@ -1,3 +1,19 @@
+#    Pim: A vim/emacs like text editor
+#    Copyright (C) 2010 Tomas Touceda
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License version 2 as 
+#    published by the Free Software Foundation.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from core import keys
 from core.text import Text
 from core.editor import Editor
 from plugins.base.editcommand import EditCommand
@@ -21,9 +37,9 @@ class Save(EditCommand):
 		elif self.stage== 1:
 			active.fd.write(active.text)
 			active.fd.close()
-			active.load(active.fd.fileName)
+			active.load(active.fileName)
 			text.setText("SAVED!")
 	
 	def register(self):
-		self.editor.activation["M-^_"]= self
-		return
+		# alt+a
+		self.editor.activation[str(0x1b)+str(0x61)]= self
