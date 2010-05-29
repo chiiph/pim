@@ -32,12 +32,14 @@ class Save(EditCommand):
 			text.setText(active.fileName)
 			text.cursor= len(active.fileName)
 			self.stage= 1
+			if self.editor.lastKey != ord('\n'):
+				super(Save, self).run(text)
 		elif self.stage== 1 and self.editor.lastKey != ord('\n'): # and 
 			super(Save, self).run(text)
 		elif self.stage== 1:
-			active.fd.write(active.text)
-			active.fd.close()
-			active.load(active.fileName)
+			file= open(active.fileName, "w")
+			file.write(active.text)
+			file.close()
 			text.setText("SAVED!")
 	
 	def register(self):

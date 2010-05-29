@@ -28,24 +28,29 @@ class Edit:
 	
 	def run(self,text):
 		if self.editor.lastKey == curses.KEY_BACKSPACE or self.editor.lastKey == 127:
+			self.editor.logger.log("back")
 			if text.cursor > 0:
 				text.setText(text.text[:text.cursor-1]+text.text[text.cursor:])
 				text.cursor-= 1
 				self.editor.updateRowCol(text)
 		elif self.editor.lastKey == curses.KEY_DC:
+			self.editor.logger.log("DC")
 			text.setText(text.text[:text.cursor]+text.text[text.cursor+1:])
 		elif self.editor.lastKey == curses.KEY_UP:
+			self.editor.logger.log("UP")
 			if self.editor.row>0:
 				self.editor.row-= 1
 				if self.editor.col>len(text.lines[self.editor.row]):
 					self.editor.col= len(text.lines[self.editor.row])
 				self.editor.updateCursor(text)
 		elif self.editor.lastKey == curses.KEY_DOWN:
+			self.editor.logger.log("Antes: "+str(self.editor.row)+","+str(self.editor.col))
 			if self.editor.row<len(text.lines)-1:
 				self.editor.row+= 1
 				if self.editor.col>len(text.lines[self.editor.row]):
 					self.editor.col= len(text.lines[self.editor.row])
 				self.editor.updateCursor(text)
+			self.editor.logger.log("Despues: "+str(self.editor.row)+","+str(self.editor.col))
 		elif self.editor.lastKey == curses.KEY_LEFT:
 			if self.editor.col>0:
 				self.editor.col-= 1
@@ -61,10 +66,13 @@ class Edit:
 #            self.editor.col= self.editor.maxcol
 #            self.editor.updateCursor(text)
 		else:
+			self.editor.logger.log("En el caso normal!")
 			if 0<self.editor.lastKey<255:
 				text.setText(text.text[:text.cursor]+chr(self.editor.lastKey)+text.text[text.cursor:])
 				text.cursor+=1
+				self.editor.logger.log("1Antes: "+str(self.editor.row)+","+str(self.editor.col))
 				self.editor.updateRowCol(text)
+				self.editor.logger.log("1Despues: "+str(self.editor.row)+","+str(self.editor.col))
 	
 	def register(self):
 		# alt+d

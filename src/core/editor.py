@@ -14,11 +14,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from core.plugger import Plugger
+from core.logger import Logger
 
 import curses
 
 class Editor:
 	def __init__(self):
+		self.logger= Logger()
+
 		self.texts= []
 		self.activeText= 0
 		self.lineText= None
@@ -31,7 +34,7 @@ class Editor:
 		self.maxrow= 0
 		self.maxcol= 0
 
-		self.activation= dict() # (keyCode, object)
+		self.activation= dict() # (keyCode string, plugin object)
 		self.activeMode= None
 
 		self.tabsize= 7 # FIXME
@@ -62,11 +65,13 @@ class Editor:
 		""" Changes the active mode if there's another mode register for that key, or leaves it as it is """
 		oldMode= self.activeMode
 		self.activeMode= self.activation.get(self.lastKeys, self.activeMode)
-		if self.activeMode.mode == 1:
-			self.updateRowCol(self.lineText)
-		elif self.activeMode.mode == 0:
-			self.updateRowCol(self.texts[self.activeText])
-		return oldMode!=self.activeMode
+		change= oldMode!=self.activeMode
+		if change:
+			if self.activeMode.mode == 1:
+				self.updateRowCol(self.lineText)
+			elif self.activeMode.mode == 0:
+				self.updateRowCol(self.texts[self.activeText])
+		return change
 	
 	def run(self):
 		self.activeMode.run(self.texts[self.activeText])
@@ -82,13 +87,17 @@ class Editor:
 		self.col= 0
 		while not there:
 			if i<len(text.lines):
-				tmp= chars+len(text.lines[i])+1
-				if tmp>text.cursor and tmp<self.maxcol:
+				tmp= chars+len(text.lines[i])
+				if not text.lines[i].marked:
+					tmp+= 1
+				if tmp>text.cursor:
 					self.col= text.cursor-chars
 					there= True
 				else:
 					self.row+= 1
-					chars+=(len(text.lines[i])+1)
+					chars+=len(text.lines[i])
+					if not text.lines[i].marked:
+						chars+= 1
 					i+=1
 			else:
 				there= True
@@ -101,7 +110,9 @@ class Editor:
 				text.cursor= sumat+self.col
 				break
 			else:
-				sumat+=len(l)+1
+				sumat+=len(l)
+				if not l.marked:
+					sumat+=1
 				i+= 1
 	
 	def getText(self, init, end):

@@ -16,6 +16,17 @@
 from os import linesep
 from core.editor import Editor
 
+class Line:
+	def __init__(self, text, mark= False):
+		self.data= text
+		# if a line is marked, then it means that it belongs to the line above
+		# this applies recursively and matters only for saving/line numbering
+		# in editing it should be treated as a normal line
+		self.marked= mark 
+	
+	def __len__(self):
+		return len(self.data)
+
 class Text:
 	def __init__(self, edt):
 		self.editor= edt
@@ -31,19 +42,62 @@ class Text:
 	def load(self, fileName):
 		""" Loads the fileName text """
 		self.fileName= fileName
-		self.fd= open(fileName, "rw+")
+		self.fd= open(fileName, "r")
 		self.text= self.fd.read()
-		self.lines= self.text.split(linesep)
+		self.splitText()
+	
+	def splitText(self):
+		self.lines= []
+		tmp= self.text.split(linesep)
+		for l in tmp:
+			self.addLine(l)
+	
+	def addLine(self, l):
+		size= self.editor.maxcol-2
+		tmpl= l
+		# Add the first part without mark
+		tmp= tmpl[:size]
+		tmpl= tmpl[size:]
+		self.lines.append(Line(tmp))
+		# if the string is longer, add it as marked
+		while tmpl!="":
+			tmp= tmpl[:size]
+			tmpl= tmpl[size:]
+			self.lines.append(Line(tmp, True))
 	
 	def getText(self, lineInit, lineEnd):
 		""" Returns the cropped text from lineInit to lineEnd """
+		trimmed= self.lines[lineInit-1:lineEnd-lineInit]
+		txt= ""
+		for l in trimmed:
+			txt+= l.data+linesep
 
-		return linesep.join(self.lines[lineInit-1:lineEnd-lineInit])
+		return txt
 	
 	def setText(self, str):
 		self.text= str
-		self.lines= self.text.split(linesep)
+		self.splitText()
 	
+#    def whichLine(self):
+#        there= False
+#        i= 0
+#        chars= 0
+#        row= 0
+#        col= 0
+#        while not there:
+#            if i<len(self.lines):
+#                tmp= chars+len(self.lines[i])+1
+#                if tmp>text.cursor and tmp<self.maxcol:
+#                    col= text.cursor-chars
+#                    there= True
+#                else:
+#                    row+= 1
+#                    chars+=(len(self.lines[i])+1)
+#                    i+=1
+#            else:
+#                there= True
+#        return (row, col)
+
 	def debug(self, init, end):
 		i= 0
 		print self.text
