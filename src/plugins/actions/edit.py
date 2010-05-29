@@ -25,47 +25,67 @@ class Edit:
 		self.key= 0 # Activation key
 		self.name= "Edit"
 		self.mode= 0
+
+		self.cutchars= ['(',' ',')',',']
 	
 	def run(self,text):
-		if self.editor.lastKey == curses.KEY_BACKSPACE or self.editor.lastKey == 127:
+		if self.editor.lastKey == "backspace":
 			if text.cursor > 0:
 				text.setText(text.text[:text.cursor-1]+text.text[text.cursor:])
 				text.cursor-= 1
 				self.editor.updateRowCol(text)
-		elif self.editor.lastKey == curses.KEY_DC:
+		elif self.editor.lastKey == "delete":
 			text.setText(text.text[:text.cursor]+text.text[text.cursor+1:])
-		elif self.editor.lastKey == curses.KEY_UP:
+		elif self.editor.lastKey == "up":
 			if self.editor.row>0:
 				self.editor.row-= 1
 				if self.editor.col>len(text.lines[self.editor.row]):
 					self.editor.col= len(text.lines[self.editor.row])
 				self.editor.updateCursor(text)
-		elif self.editor.lastKey == curses.KEY_DOWN:
+		elif self.editor.lastKey == "down":
 			if self.editor.row<len(text.lines)-1:
 				self.editor.row+= 1
 				if self.editor.col>len(text.lines[self.editor.row]):
-					self.editor.col= len(text.lines[self.editor.row])
+					self.editor.col= len(text.lines[self.editor.row])-1
 				self.editor.updateCursor(text)
-		elif self.editor.lastKey == curses.KEY_LEFT:
+		elif self.editor.lastKey == "left":
 			if self.editor.col>0:
 				self.editor.col-= 1
 				self.editor.updateCursor(text)
-		elif self.editor.lastKey == curses.KEY_RIGHT:
+		elif self.editor.lastKey == "right":
 			if self.editor.col<self.editor.maxcol and self.editor.col<(len(text.lines[self.editor.row])):
 				self.editor.col+= 1
 				self.editor.updateCursor(text)
-#        elif self.editor.lastKey == curses.KEY_BEG:
-#            self.editor.col= 0
-#            self.editor.updateCursor(text)
-#        elif self.editor.lastKey == curses.KEY_END:
-#            self.editor.col= self.editor.maxcol
-#            self.editor.updateCursor(text)
+		elif self.editor.lastKey == "home":
+			self.editor.col= 0
+			self.editor.updateCursor(text)
+			self.editor.lastKey= ""
+		elif self.editor.lastKey == "end":
+			self.editor.col= len(text.lines[self.editor.getLine(text)])-1
+			self.editor.updateCursor(text)
+			self.editor.lastKey= ""
+		elif self.editor.lastKey == "ctrl left":
+			self.findBackwards(text)
+			self.editor.updateRowCol(text)
+		elif self.editor.lastKey == "ctrl right":
+			self.findForwards(text)
+			self.editor.updateRowCol(text)
 		else:
-			if 0<self.editor.lastKey<255:
-				text.setText(text.text[:text.cursor]+chr(self.editor.lastKey)+text.text[text.cursor:])
-				text.cursor+=1
-				self.editor.updateRowCol(text)
+			if text.lines[self.editor.getLine(text)].marked:
+				text.setText(text.text[:text.cursor-1]+self.editor.lastKey+text.text[text.cursor-1:])
+			else:
+				text.setText(text.text[:text.cursor]+self.editor.lastKey+text.text[text.cursor:])
+			text.cursor+=1
+			self.editor.updateRowCol(text)
+
+	def findForwards(self, text):
+		while not text.text[text.cursor] in self.cutchars and text.cursor<len(text.text):
+			text.cursor+=1
 	
+	def findBackwards(self, text):
+		while not text.text[text.cursor] in self.cutchars and text.cursor>0:
+			text.cursor-=1
+
 	def register(self):
 		# alt+d
-		self.editor.activation[keys.alt+str(0x64)]= self
+		self.editor.activation["meta d"]= self

@@ -44,4 +44,4 @@ class Save(EditCommand):
 	
 	def register(self):
 		# alt+a
-		self.editor.activation[str(0x1b)+str(0x61)]= self
+		self.editor.activation["meta a"]= self

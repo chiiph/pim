@@ -26,7 +26,6 @@ class Editor:
 		self.activeText= 0
 		self.lineText= None
 		self.lastKey= ""
-		self.lastKeys= ""
 
 		self.row= 0
 		self.col= 0
@@ -64,7 +63,7 @@ class Editor:
 	def changeMode(self):
 		""" Changes the active mode if there's another mode register for that key, or leaves it as it is """
 		oldMode= self.activeMode
-		self.activeMode= self.activation.get(self.lastKeys, self.activeMode)
+		self.activeMode= self.activation.get(self.lastKey, self.activeMode)
 		change= oldMode!=self.activeMode
 		if change:
 			if self.activeMode.mode == 1:
@@ -102,6 +101,28 @@ class Editor:
 			else:
 				there= True
 	
+	def getLine(self, text):
+		there= False
+		i= 0
+		chars= 0
+		line= 0
+		while not there:
+			if i<len(text.lines):
+				tmp= chars+len(text.lines[i])
+				if not text.lines[i].marked:
+					tmp+= 1
+				if tmp>text.cursor:
+					line= i
+					there= True
+				else:
+					chars+=len(text.lines[i])
+					if not text.lines[i].marked:
+						chars+= 1
+					i+=1
+			else:
+				there= True
+		return line
+
 	def updateCursor(self, text):
 		i= 0
 		sumat= 0
