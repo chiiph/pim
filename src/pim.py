@@ -94,6 +94,7 @@ class Pim:
 	def refresh(self):
 		if self.editor.activeMode.mode == 1:
 			self.cmdLine.move(self.editor.row, self.editor.col)
+			self.editor.logger.log(str(self.editor.row)+","+str(self.editor.col))
 			self.cmdLine.clrtoeol()
 		elif self.editor.activeMode.mode == 0:
 			self.display.move(self.editor.row, self.editor.col)

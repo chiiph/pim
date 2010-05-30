@@ -36,7 +36,7 @@ class Editor:
 		self.activation= dict() # (keyCode string, plugin object)
 		self.activeMode= None
 
-		self.tabsize= 7 # FIXME
+		self.tabsize= 3
 
 		self.actions= dict()
 		self.states= dict()
@@ -91,6 +91,8 @@ class Editor:
 					tmp+= 1
 				if tmp>text.cursor:
 					self.col= text.cursor-chars
+					if text.lines[i].marked:
+						self.col+= 1
 					there= True
 				else:
 					self.row+= 1
@@ -129,6 +131,8 @@ class Editor:
 		for l in text.lines:
 			if i==self.row:
 				text.cursor= sumat+self.col
+				if l.marked:
+					text.cursor-=1
 				break
 			else:
 				sumat+=len(l)

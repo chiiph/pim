@@ -18,10 +18,10 @@ from core.text import Text
 from core.editor import Editor
 from plugins.base.editcommand import EditCommand
 
-class Save(EditCommand):
+class Open(EditCommand):
 	def __init__(self, edt):
 		self.editor= edt
-		self.name= "Save"
+		self.name= "Open"
 		self.mode= 1
 
 		self.stage= 0
@@ -29,26 +29,33 @@ class Save(EditCommand):
 	def run(self,text):
 		active= self.editor.texts[self.editor.activeText]
 		if self.stage== 0: # Check what's the name to save the file
-			text.setText(active.fileName)
-			text.cursor= len(active.fileName)
+			super(Open, self).run(text)
 			self.stage= 1
-			if self.editor.lastKey != "enter":
-				super(Save, self).run(text)
 		elif self.stage== 1 and self.editor.lastKey != "enter":
-			super(Save, self).run(text)
+			super(Open, self).run(text)
 		elif self.stage== 1:
-			file= open(active.fileName, "w")
-			file.write(self.retab(active))
-			file.close()
-			text.setText("SAVED!")
+			active.load(text.text)
+			self.tab(active)
+			text.setText("LOADED!")
 			self.editor.activateDefaultMode()
 	
-	def retab(self, text):
-		tabs= text.properties["tabs"]
+	def tab(self, text):
+		tabs= []
+		done= False
+		i= 0
 		tmp= text.text
-		for tab in tabs:
-			tmp= tmp[:tab]+"\t"+tmp[(tab+self.editor.tabsize):]
-		return tmp
+		while not done:
+			if i==len(tmp):
+				done= True
+			else:
+				if tmp[i]=='\t':
+					tmp= tmp[:i]+(" "*self.editor.tabsize)+tmp[i+1:]
+					tabs.append(i)
+					i+=self.editor.tabsize
+				else:
+					i+=1
+		text.setText(tmp)
+		text.properties["tabs"]= tabs
 	
 	def register(self):
-		self.editor.activation["meta a"]= self
+		self.editor.activation["meta o"]= self

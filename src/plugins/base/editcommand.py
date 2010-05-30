@@ -26,36 +26,58 @@ class EditCommand(object):
 		self.mode= 0
 	
 	def run(self,text):
-		if self.editor.lastKey == curses.KEY_BACKSPACE or self.editor.lastKey == 127:
-			if text.cursor > 0:
-				text.setText(text.text[:text.cursor-1]+text.text[text.cursor:])
-				text.cursor-= 1
-				self.editor.updateRowCol(text)
-		elif self.editor.lastKey == curses.KEY_DC:
+		if self.editor.lastKey == "backspace":
+			self.backspace(text)
+		elif self.editor.lastKey == "delete":
 			text.setText(text.text[:text.cursor]+text.text[text.cursor+1:])
-#		TODO: history
-#        elif self.editor.lastKey == curses.KEY_UP:
-#            if self.editor.row>0:
-#                self.editor.row-= 1
-#                if self.editor.col>len(text.lines[self.editor.row]):
-#                    self.editor.col= len(text.lines[self.editor.row])
-#                self.editor.updateCursor(text)
-#        elif self.editor.lastKey == curses.KEY_DOWN:
-#            if self.editor.row<len(text.lines)-1:
-#                self.editor.row+= 1
-#                if self.editor.col>len(text.lines[self.editor.row]):
-#                    self.editor.col= len(text.lines[self.editor.row])
-#                self.editor.updateCursor(text)
-		elif self.editor.lastKey == curses.KEY_LEFT:
-			if self.editor.col>0:
-				self.editor.col-= 1
-				self.editor.updateCursor(text)
-		elif self.editor.lastKey == curses.KEY_RIGHT:
-			if self.editor.col<self.editor.maxcol and self.editor.col<(len(text.lines[self.editor.row])):
-				self.editor.col+= 1
-				self.editor.updateCursor(text)
+		elif self.editor.lastKey == "up":
+			return
+		elif self.editor.lastKey == "down":
+			return
+		elif self.editor.lastKey == "left":
+			self.moveLeft(text)
+		elif self.editor.lastKey == "right":
+			self.moveRight(text)
+		elif self.editor.lastKey == "home":
+			self.editor.col= 0
+			self.editor.updateCursor(text)
+			self.editor.lastKey= ""
+		elif self.editor.lastKey == "end":
+			self.editor.col= len(text.lines[self.editor.getLine(text)])
+			self.editor.updateCursor(text)
+			self.editor.lastKey= ""
+		elif self.editor.lastKey == "ctrl left":
+			return
+		elif self.editor.lastKey == "ctrl right":
+			return
+		elif self.editor.lastKey == "tab":
+			return
+		elif self.editor.lastKey == "enter":
+			return
 		else:
-			if 0<self.editor.lastKey<255 and self.editor.lastKey!=ord('\n'):
-				text.setText(text.text[:text.cursor]+chr(self.editor.lastKey)+text.text[text.cursor:])
-				text.cursor+=1
-				self.editor.updateRowCol(text)
+			text.setText(text.text[:text.cursor]+self.editor.lastKey+text.text[text.cursor:])
+			text.cursor+=1
+			self.editor.updateRowCol(text)
+
+	def moveRight(self, text):
+		length= 1
+		if text.cursor in self.tabs:
+			length= self.editor.tabsize
+		if self.editor.col<self.editor.maxcol and self.editor.col<(len(text.lines[self.editor.row])):
+			self.editor.col+= length
+			self.editor.updateCursor(text)
+	
+	def moveLeft(self, text):
+		length= 1
+		if (text.cursor-self.editor.tabsize) in self.tabs:
+			length= self.editor.tabsize
+		if self.editor.col>0:
+			self.editor.col-= length
+			self.editor.updateCursor(text)
+	
+	def backspace(self, text):
+		if text.cursor > 0:
+			length= 1
+			text.setText(text.text[:text.cursor-length]+text.text[text.cursor:])
+			text.cursor-= length
+			self.editor.updateRowCol(text)

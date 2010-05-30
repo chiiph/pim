@@ -38,6 +38,8 @@ class Text:
 		self.fileName= ""
 		self.fd= None
 		self.lines= []
+
+		self.properties= dict()
 	
 	def load(self, fileName):
 		""" Loads the fileName text """
