@@ -45,33 +45,36 @@ class Pim:
 
 		self.createUi()
 		
-		while 1:
-			if self.editor.activeMode.mode == 1: # mode 1 interacts with the cmdLine window
+		try:
+			while 1:
+	#            if self.editor.activeMode.mode == 1: # mode 1 interacts with the cmdLine window
 				self.cmdLine.addstr(0, 0, self.editor.lineText.text)
-			elif self.editor.activeMode.mode == 0: # mode 0 interacts with the display window
+	#            elif self.editor.activeMode.mode == 0: # mode 0 interacts with the display window
 				self.display.addstr(0, 0, self.editor.getText(self.topLine, self.topLine+self.my))
-			
-			self.status.addstr(0, 0, "Mode: "+self.editor.activeMode.name) # Debug for now, may be it'll stay as status
-			
-			self.refresh() # refreshes the content in all the windows
-			self.editor.lastKey= self.urscreen.get_input()[0] # get the last key pressed
+				
+				self.status.addstr(0, 0, "Mode: "+self.editor.activeMode.name) # Debug for now, may be it'll stay as status
+				
+				self.refresh() # refreshes the content in all the windows
+				self.editor.lastKey= self.urscreen.get_input()[0] # get the last key pressed
 
-			self.editor.logger.log(self.editor.lastKey)
+				self.editor.logger.log(self.editor.lastKey)
 
-			# change the mode if needed
-			changed= self.editor.changeMode()
-			if not changed:
-				# if we don't change the mode, then pass the keys to the current mode
-				if self.editor.activeMode.mode == 1:
-					self.editor.runLine()
-				elif self.editor.activeMode.mode == 0:
-					self.editor.run()
-			
-			### DEBUG CODE ###
-			if self.editor.lastKey == 'q': # FIXME: provisory exit
-				break  # Exit the while()
-			### DEBUG CODE ###
-		self.urscreen.stop()
+				# change the mode if needed
+				changed= self.editor.changeMode()
+				if not changed:
+					# if we don't change the mode, then pass the keys to the current mode
+					if self.editor.activeMode.mode == 1:
+						self.editor.runLine()
+					elif self.editor.activeMode.mode == 0:
+						self.editor.run()
+				
+				### DEBUG CODE ###
+				if self.editor.lastKey == 'q': # FIXME: provisory exit
+					break  # Exit the while()
+				### DEBUG CODE ###
+			self.urscreen.stop()
+		except:
+			self.urscreen.stop()
 
 	def createUi(self):
 		self.display = curses.newwin(self.my-2, self.mx-1, 0, 0)
@@ -94,7 +97,7 @@ class Pim:
 	def refresh(self):
 		if self.editor.activeMode.mode == 1:
 			self.cmdLine.move(self.editor.row, self.editor.col)
-			self.editor.logger.log(str(self.editor.row)+","+str(self.editor.col))
+#            self.editor.logger.log(str(self.editor.row)+","+str(self.editor.col))
 			self.cmdLine.clrtoeol()
 		elif self.editor.activeMode.mode == 0:
 			self.display.move(self.editor.row, self.editor.col)

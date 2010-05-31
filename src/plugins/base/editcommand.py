@@ -61,16 +61,12 @@ class EditCommand(object):
 
 	def moveRight(self, text):
 		length= 1
-		if text.cursor in self.tabs:
-			length= self.editor.tabsize
 		if self.editor.col<self.editor.maxcol and self.editor.col<(len(text.lines[self.editor.row])):
 			self.editor.col+= length
 			self.editor.updateCursor(text)
 	
 	def moveLeft(self, text):
 		length= 1
-		if (text.cursor-self.editor.tabsize) in self.tabs:
-			length= self.editor.tabsize
 		if self.editor.col>0:
 			self.editor.col-= length
 			self.editor.updateCursor(text)
