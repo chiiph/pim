@@ -25,6 +25,8 @@ class Save(EditCommand):
 		self.mode= 1
 
 		self.stage= 0
+
+		self.message= ""
 	
 	def run(self,text):
 		active= self.editor.texts[self.editor.activeText]
@@ -40,8 +42,10 @@ class Save(EditCommand):
 			file= open(active.fileName, "w")
 			file.write(self.retab(active))
 			file.close()
-			text.setText("SAVED!")
 			self.editor.activateDefaultMode()
+
+			self.message= "Saved"
+			text.setText("")
 	
 	def retab(self, text):
 		tabs= text.properties["tabs"]

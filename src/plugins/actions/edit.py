@@ -61,23 +61,24 @@ class Edit:
 			self.editor.lastKey= ""
 		elif self.editor.lastKey == "ctrl left":
 			self.findBackwards(text)
-			self.editor.updateRowCol(text)
+#            self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "ctrl right":
 			self.findForwards(text)
-			self.editor.updateRowCol(text)
+#            self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "tab":
 			text.setText(text.text[:text.cursor]+(" "*self.editor.tabsize)+text.text[text.cursor:])
 			text.properties["tabs"].append(text.cursor)
-			text.cursor+= self.editor.tabsize
-			self.editor.updateRowCol(text)
+			text.cursor+= self.editor.tabsize-(self.editor.col%self.editor.tabsize)
+#            self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "enter":
 			text.setText(text.text[:text.cursor]+"\n"+text.text[text.cursor:])
 			text.cursor+= 1
-			self.editor.updateRowCol(text)
+#            self.editor.updateRowCol(text)
 		else:
 			text.setText(text.text[:text.cursor]+self.editor.lastKey+text.text[text.cursor:])
 			text.cursor+=1
-			self.editor.updateRowCol(text)
+#            self.editor.updateRowCol(text)
+		self.editor.updateRowCol(text)
 
 	def findForwards(self, text):
 		if text.text[text.cursor] in self.cutchars:
@@ -110,13 +111,18 @@ class Edit:
 	def backspace(self, text):
 		if text.cursor > 0:
 			length= 1
-			tab= text.cursor-self.editor.tabsize
+			tab= text.cursor-(self.editor.tabsize-(self.editor.col%self.editor.tabsize))
 			if tab in self.tabs:
 				length= self.editor.tabsize
 				self.tabs.remove(tab)
 			text.setText(text.text[:text.cursor-length]+text.text[text.cursor:])
 			text.cursor-= length
-			self.editor.updateRowCol(text)
+#            self.editor.updateRowCol(text)
+	
+#    def isTab(self, text):
+#        pos= 0
+#        tab= text.cursor-self.editor.tabsize
+
 
 	def register(self):
 		self.editor.activation["meta d"]= self

@@ -65,11 +65,11 @@ class Editor:
 		oldMode= self.activeMode
 		self.activeMode= self.activation.get(self.lastKey, self.activeMode)
 		change= oldMode!=self.activeMode
-		if change:
-			if self.activeMode.mode == 1:
-				self.updateRowCol(self.lineText)
-			elif self.activeMode.mode == 0:
-				self.updateRowCol(self.texts[self.activeText])
+#        if change:
+#            if self.activeMode.mode == 1:
+#                self.updateRowCol(self.lineText)
+#            elif self.activeMode.mode == 0:
+#                self.updateRowCol(self.texts[self.activeText])
 		return change
 	
 	def run(self):
