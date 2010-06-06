@@ -36,17 +36,29 @@ class Edit:
 		elif self.editor.lastKey == "delete":
 			text.setText(text.text[:text.cursor]+text.text[text.cursor+1:])
 		elif self.editor.lastKey == "up":
-			if self.editor.row>0:
-				self.editor.row-= 1
-				if self.editor.col>len(text.lines[self.editor.row]):
-					self.editor.col= len(text.lines[self.editor.row])
-				self.editor.updateCursor(text)
+			(line,chars) = self.editor.getLine(text)
+			if line>0:
+				maxcol = len(text.lines[line-1])
+				linepos = text.cursor-chars
+				newpos = linepos
+				if linepos>maxcol:
+					newpos = maxcol
+				text.cursor -= linepos # What's left of that line
+				if not text.lines[line-1].marked:
+					text.cursor -= 1 # minus \n char if it isn't a marked line
+				text.cursor -= maxcol-newpos # minus the new column
 		elif self.editor.lastKey == "down":
-			if self.editor.row<len(text.lines)-1:
-				self.editor.row+= 1
-				if self.editor.col>len(text.lines[self.editor.row]):
-					self.editor.col= len(text.lines[self.editor.row])
-				self.editor.updateCursor(text)
+			(line,chars) = self.editor.getLine(text)
+			if line<len(text.lines)-1:
+				maxcol = len(text.lines[line+1])
+				linepos = text.cursor-chars
+				newpos = linepos
+				if linepos>maxcol:
+					newpos = maxcol
+				text.cursor += len(text.lines[line])-linepos # What's left of that line
+				if not text.lines[line].marked:
+					text.cursor += 1 # plus \n char if it isn't a marked line
+				text.cursor += newpos # plus the new column
 		elif self.editor.lastKey == "left":
 			self.moveLeft(text)
 		elif self.editor.lastKey == "right":
@@ -66,9 +78,10 @@ class Edit:
 			self.findForwards(text)
 			self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "tab":
-			text.setText(text.text[:text.cursor]+(" "*self.editor.tabsize)+text.text[text.cursor:])
+			pos= self.editor.tabsize-(self.editor.col%self.editor.tabsize)
+			text.setText(text.text[:text.cursor]+(" "*pos)+text.text[text.cursor:])
 			text.properties["tabs"].append(text.cursor)
-			text.cursor+= self.editor.tabsize-(self.editor.col%self.editor.tabsize)
+			text.cursor+= pos
 			self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "enter":
 			text.setText(text.text[:text.cursor]+"\n"+text.text[text.cursor:])
@@ -97,20 +110,24 @@ class Edit:
 			text.cursor-=1
 	
 	def moveRight(self, text):
-		length= 1
-		if text.cursor in self.tabs:
-			length= self.editor.tabsize
-		if self.editor.col<self.editor.maxcol and self.editor.col<(len(text.lines[self.editor.row])):
-			self.editor.col+= length
-			self.editor.updateCursor(text)
+#        length= 1
+#        if text.cursor in self.tabs:
+#            length= self.editor.tabsize
+#        if self.editor.col<self.editor.maxcol and self.editor.col<(len(text.lines[self.editor.row])):
+#            self.editor.col+= length
+#            self.editor.updateCursor(text)
+		if text.cursor<len(text.text):
+			text.cursor+=1
 	
 	def moveLeft(self, text):
-		length= 1
-		if (text.cursor-self.editor.tabsize) in self.tabs:
-			length= self.editor.tabsize
-		if self.editor.col>0:
-			self.editor.col-= length
-			self.editor.updateCursor(text)
+#        length= 1
+#        if (text.cursor-self.editor.tabsize) in self.tabs:
+#            length= self.editor.tabsize
+#        if self.editor.col>0:
+#            self.editor.col-= length
+#            self.editor.updateCursor(text)
+		if text.cursor>0:
+			text.cursor-=1
 	
 	def backspace(self, text):
 		if text.cursor > 0:
@@ -130,3 +147,5 @@ class Edit:
 
 	def register(self):
 		self.editor.activation["meta d"]= self
+		# Init every property used by this plugin
+		self.editor.baseProperties["tabs"]= []

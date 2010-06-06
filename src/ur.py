@@ -44,15 +44,9 @@ class Pim:
 		self.editor.maxrow= self.my
 		self.editor.maxcol= self.mx
 
-		### DEBUGGING CODE ###
-#        txt= Text(self.editor)
-#        txt.load("test")
-#        self.editor.texts.append(txt)
-		### END DEBUGGING  ###
-
 		self.display= Display()
 		self.status_line= urText("")
-		self.command_line= urText("")
+		self.command_line= Display()
 
 		self.frame= Frame(body=Filler(self.display), footer=Pile([self.status_line, self.command_line]))
 
@@ -86,9 +80,15 @@ class Pim:
 
 	def update(self):
 #        self.display.move_cursor_to_coords((self.mx,), self.editor.col, self.editor.row)
-		self.display.set_edit_pos(self.editor.texts[self.editor.activeText].cursor)
+		if self.editor.activeMode.mode == 1:
+			self.frame.set_focus("footer")
+			self.command_line.set_edit_pos(self.editor.lineText.cursor)
+		elif self.editor.activeMode.mode == 0:
+			self.frame.set_focus("body")
+			self.display.set_edit_pos(self.editor.texts[self.editor.activeText].cursor)
 		(self.editor.col,self.editor.row)= self.display.get_cursor_coords((self.mx,))
-		self.command_line.set_text(self.editor.lineText.text)
+#        self.editor.pref_col= self.display.get_pref_col((self.mx,))
+		self.command_line.set_edit_text(self.editor.lineText.text)
 		self.display.set_filler_text(self.editor.getText(self.topLine, self.topLine+self.my), self.mx)
 		
 		status_text= "["+self.editor.activeMode.name+"]"

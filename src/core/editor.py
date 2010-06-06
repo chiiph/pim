@@ -21,20 +21,20 @@ import curses
 
 class Editor:
 	def __init__(self):
-		self.logger= Logger()
+		self.logger= Logger() # Logger class
 
-		self.texts= []
+		self.texts= [] # Text objets in use
 
-		self.texts.append(Text(self))
+		self.activeText= 0 # The first active text will be an empty one
+		self.lastKey= "" # Last key pressed
+		self.status_message= "" # Last status message
+		self.lineText= Text(self) # Text object for the command_line
+		self.baseProperties= dict() # Plugin provided properties
 
-		self.activeText= 0
-		self.lineText= None
-		self.lastKey= ""
-		self.status_message= ""
-		self.lineText= Text(self)
-
+		# Set cursor's first position
 		self.row= 0
 		self.col= 0
+		self.pref_col= 0
 		
 		self.maxrow= 0
 		self.maxcol= 0
@@ -47,11 +47,13 @@ class Editor:
 		self.actions= dict()
 		self.states= dict()
 
-		self.plugger= Plugger()
+		self.plugger= Plugger() # Plugin manager
 
-		self.registerAll()
+		self.registerAll() # Register every plugin with self
 
-		self.activateDefaultMode()
+		self.activateDefaultMode() # Activate the default mode
+
+		self.addNewText() # Start with an empty text
 	
 	def register(self, var, place):
 		for c in place:
@@ -62,6 +64,12 @@ class Editor:
 	def registerAll(self):
 		self.register(self.actions, self.plugger.actions)
 		self.register(self.states, self.plugger.states)
+	
+	def addNewText(self):
+		text= Text(self)
+		self.texts.append(text)
+		text.properties= self.baseProperties
+		self.activeText=len(self.texts)-1 # Activate the last added text
 	
 	def activateDefaultMode(self):
 		self.activeMode= self.actions["edit"]
@@ -130,7 +138,7 @@ class Editor:
 					i+=1
 			else:
 				there= True
-		return line
+		return (line, chars)
 
 	def updateCursor(self, text):
 		i= 0
