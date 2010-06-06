@@ -14,7 +14,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from os import linesep
-from core.editor import Editor
 
 class Line:
 	def __init__(self, text, mark= False):

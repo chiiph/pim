@@ -48,7 +48,6 @@ class Pim:
 #        txt= Text(self.editor)
 #        txt.load("test")
 #        self.editor.texts.append(txt)
-		self.editor.lineText= Text(self.editor)
 		### END DEBUGGING  ###
 
 		self.display= Display()
@@ -86,9 +85,9 @@ class Pim:
 		self.update()
 
 	def update(self):
-#        (self.editor.col,self.editor.row)= self.display.get_cursor_coords((self.mx,))
-		self.display.move_cursor_to_coords((self.mx,), self.editor.col, self.editor.row)
-#        self.display.set_edit_pos(self.editor.texts[self.editor.activeText].cursor)
+#        self.display.move_cursor_to_coords((self.mx,), self.editor.col, self.editor.row)
+		self.display.set_edit_pos(self.editor.texts[self.editor.activeText].cursor)
+		(self.editor.col,self.editor.row)= self.display.get_cursor_coords((self.mx,))
 		self.command_line.set_text(self.editor.lineText.text)
 		self.display.set_filler_text(self.editor.getText(self.topLine, self.topLine+self.my), self.mx)
 		

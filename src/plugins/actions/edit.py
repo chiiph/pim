@@ -78,6 +78,7 @@ class Edit:
 			text.setText(text.text[:text.cursor]+self.editor.lastKey+text.text[text.cursor:])
 			text.cursor+=1
 			self.editor.updateRowCol(text)
+			self.editor.logger.log(str(self.editor.row)+","+str(self.editor.col))
 
 	def findForwards(self, text):
 		if len(text.lines)<self.editor.row:

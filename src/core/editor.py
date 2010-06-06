@@ -15,6 +15,7 @@
 
 from core.plugger import Plugger
 from core.logger import Logger
+from core.text import Text
 
 import curses
 
@@ -23,10 +24,14 @@ class Editor:
 		self.logger= Logger()
 
 		self.texts= []
+
+		self.texts.append(Text(self))
+
 		self.activeText= 0
 		self.lineText= None
 		self.lastKey= ""
 		self.status_message= ""
+		self.lineText= Text(self)
 
 		self.row= 0
 		self.col= 0
@@ -80,6 +85,7 @@ class Editor:
 		self.activeMode.run(self.lineText)
 	
 	def updateRowCol(self, text):
+		return
 		there= False
 		i= 0
 		chars= 0
@@ -92,8 +98,8 @@ class Editor:
 					tmp+= 1
 				if tmp>text.cursor:
 					self.col= text.cursor-chars
-					if text.lines[i].marked:
-						self.col+= 1
+#                    if text.lines[i].marked:
+#                        self.col+= 1
 					there= True
 				else:
 					self.row+= 1
