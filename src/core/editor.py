@@ -26,6 +26,7 @@ class Editor:
 		self.activeText= 0
 		self.lineText= None
 		self.lastKey= ""
+		self.status_message= ""
 
 		self.row= 0
 		self.col= 0
@@ -65,11 +66,11 @@ class Editor:
 		oldMode= self.activeMode
 		self.activeMode= self.activation.get(self.lastKey, self.activeMode)
 		change= oldMode!=self.activeMode
-#        if change:
-#            if self.activeMode.mode == 1:
-#                self.updateRowCol(self.lineText)
-#            elif self.activeMode.mode == 0:
-#                self.updateRowCol(self.texts[self.activeText])
+		if change:
+			if self.activeMode.mode == 1:
+				self.updateRowCol(self.lineText)
+			elif self.activeMode.mode == 0:
+				self.updateRowCol(self.texts[self.activeText])
 		return change
 	
 	def run(self):
@@ -141,4 +142,7 @@ class Editor:
 				i+= 1
 	
 	def getText(self, init, end):
-		return self.texts[self.activeText].getText(init, end)
+		txt= ""
+		if len(self.texts)>0:
+			txt= self.texts[self.activeText].getText(init, end)
+		return txt

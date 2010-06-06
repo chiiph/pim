@@ -45,9 +45,9 @@ class Pim:
 		self.editor.maxcol= self.mx
 
 		### DEBUGGING CODE ###
-		txt= Text(self.editor)
-		txt.load("test")
-		self.editor.texts.append(txt)
+#        txt= Text(self.editor)
+#        txt.load("test")
+#        self.editor.texts.append(txt)
 		self.editor.lineText= Text(self.editor)
 		### END DEBUGGING  ###
 
@@ -79,20 +79,23 @@ class Pim:
 			self.editor.run()
 		
 		### DEBUG CODE ###
-		if self.editor.lastKey == 'q': # FIXME: provisory exit
+		if self.editor.lastKey == 'meta q': # FIXME: provisory exit
 			raise ExitMainLoop()  # Exit the while()
 		### DEBUG CODE ###
 
 		self.update()
 
 	def update(self):
-#        self.display.move_cursor_to_coords((1,), self.editor.row, self.editor.col)
-#        (self.editor.col,self.editor.row)= self.display.get_cursor_coords((self.my,))
-		self.display.set_edit_pos(self.editor.texts[self.editor.activeText].cursor)
+#        (self.editor.col,self.editor.row)= self.display.get_cursor_coords((self.mx,))
+		self.display.move_cursor_to_coords((self.mx,), self.editor.col, self.editor.row)
+#        self.display.set_edit_pos(self.editor.texts[self.editor.activeText].cursor)
 		self.command_line.set_text(self.editor.lineText.text)
 		self.display.set_filler_text(self.editor.getText(self.topLine, self.topLine+self.my), self.mx)
 		
-		self.status_line.set_text("["+self.editor.activeMode.name+"]") # Debug for now, may be it'll stay as status
+		status_text= "["+self.editor.activeMode.name+"]"
+		if self.editor.status_message != "":
+			status_text+= " - "+self.editor.status_message
+		self.status_line.set_text(status_text) # Debug for now, may be it'll stay as status
 		
 
 if __name__=='__main__':

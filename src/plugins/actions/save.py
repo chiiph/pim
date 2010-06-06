@@ -22,7 +22,7 @@ class Save(EditCommand):
 	def __init__(self, edt):
 		self.editor= edt
 		self.name= "Save"
-		self.mode= 1
+		self.mode= 0
 
 		self.stage= 0
 
@@ -30,22 +30,33 @@ class Save(EditCommand):
 	
 	def run(self,text):
 		active= self.editor.texts[self.editor.activeText]
-		if self.stage== 0: # Check what's the name to save the file
-			text.setText(active.fileName)
-			text.cursor= len(active.fileName)
-			self.stage= 1
-			if self.editor.lastKey != "enter":
-				super(Save, self).run(text)
-		elif self.stage== 1 and self.editor.lastKey != "enter":
-			super(Save, self).run(text)
-		elif self.stage== 1:
-			file= open(active.fileName, "w")
-			file.write(self.retab(active))
-			file.close()
-			self.editor.activateDefaultMode()
+#        if self.stage== 0: # Check what's the name to save the file
+#            text.setText(active.fileName)
+#            text.cursor= len(active.fileName)
+#            self.stage= 1
+#            if self.editor.lastKey != "enter":
+#                super(Save, self).run(text)
+#        elif self.stage== 1 and self.editor.lastKey != "enter":
+#            super(Save, self).run(text)
+#        elif self.stage== 1:
+#            file= open(active.fileName, "w")
+#            file.write(self.retab(active))
+#            file.close()
+#            self.editor.activateDefaultMode()
 
-			self.message= "Saved"
-			text.setText("")
+#            self.message= "Saved"
+#            text.setText("")
+		if active.fileName == "":
+			self.message= "Nothing to do here..."
+			return
+		
+		file= open(active.fileName, "w")
+		file.write(self.retab(active))
+		file.close()
+		self.editor.activateDefaultMode()
+
+		self.editor.status_message= "Saved"
+
 	
 	def retab(self, text):
 		tabs= text.properties["tabs"]

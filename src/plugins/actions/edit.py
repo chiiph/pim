@@ -61,34 +61,37 @@ class Edit:
 			self.editor.lastKey= ""
 		elif self.editor.lastKey == "ctrl left":
 			self.findBackwards(text)
-#            self.editor.updateRowCol(text)
+			self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "ctrl right":
 			self.findForwards(text)
-#            self.editor.updateRowCol(text)
+			self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "tab":
 			text.setText(text.text[:text.cursor]+(" "*self.editor.tabsize)+text.text[text.cursor:])
 			text.properties["tabs"].append(text.cursor)
 			text.cursor+= self.editor.tabsize-(self.editor.col%self.editor.tabsize)
-#            self.editor.updateRowCol(text)
+			self.editor.updateRowCol(text)
 		elif self.editor.lastKey == "enter":
 			text.setText(text.text[:text.cursor]+"\n"+text.text[text.cursor:])
 			text.cursor+= 1
-#            self.editor.updateRowCol(text)
+			self.editor.updateRowCol(text)
 		else:
 			text.setText(text.text[:text.cursor]+self.editor.lastKey+text.text[text.cursor:])
 			text.cursor+=1
-#            self.editor.updateRowCol(text)
-		self.editor.updateRowCol(text)
+			self.editor.updateRowCol(text)
 
 	def findForwards(self, text):
+		if len(text.lines)<self.editor.row:
+			return
 		if text.text[text.cursor] in self.cutchars:
 			text.cursor+=1
 		while not text.text[text.cursor] in self.cutchars and text.cursor<len(text.text):
 			text.cursor+=1
 	
 	def findBackwards(self, text):
+		if len(text.lines)<self.editor.row:
+			return
 		if text.text[text.cursor] in self.cutchars:
-			text.cursor+=1
+			text.cursor-=1
 		while not text.text[text.cursor] in self.cutchars and text.cursor>0:
 			text.cursor-=1
 	
@@ -117,7 +120,7 @@ class Edit:
 				self.tabs.remove(tab)
 			text.setText(text.text[:text.cursor-length]+text.text[text.cursor:])
 			text.cursor-= length
-#            self.editor.updateRowCol(text)
+			self.editor.updateRowCol(text)
 	
 #    def isTab(self, text):
 #        pos= 0

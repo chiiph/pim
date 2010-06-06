@@ -24,9 +24,13 @@ class Open(EditCommand):
 		self.name= "Open"
 		self.mode= 1
 
+		self.message= ""
+
 		self.stage= 0
 	
 	def run(self,text):
+		if len(self.editor.texts)==0:
+			self.editor.texts.append(Text(self.editor))
 		active= self.editor.texts[self.editor.activeText]
 		if self.stage== 0: # Check what's the name to save the file
 			super(Open, self).run(text)
@@ -36,8 +40,9 @@ class Open(EditCommand):
 		elif self.stage== 1:
 			active.load(text.text)
 			self.tab(active)
-			text.setText("LOADED!")
 			self.editor.activateDefaultMode()
+			self.editor.status_message= "Opened file "+text.text
+			text.setText("")
 	
 	def tab(self, text):
 		tabs= []
