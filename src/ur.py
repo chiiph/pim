@@ -18,6 +18,8 @@ from core.text import Text
 from urwid import Edit, Text as urText, Frame, Filler, \
                   Pile, MainLoop, ExitMainLoop,\
 				  raw_display
+from urwid.util import decompose_tagmarkup
+
 from os import linesep
 
 class Display(Edit):
@@ -30,8 +32,18 @@ class Display(Edit):
 	
 	def set_filler_text(self, text, height):
 		fill= height-(len(text.split(linesep)))
-		str= text+("\n"*fill)
-		super(Display, self).set_edit_text(str)
+		t= text+("\n"*fill)
+		
+#        self._edit_text, self._attrib = decompose_tagmarkup(["other", ('I say', "test")])
+#        self._invalidate()
+#        super(Display, self).set_caption(('I say', str(t)))
+		super(Display, self).set_edit_text(t)
+	
+#    def highlight(self, text, words):
+#        
+
+	def get_text(self):
+		return self._edit_text, self._attrib
 
 class Pim:
 	def __init__(self):
@@ -39,6 +51,8 @@ class Pim:
 
 		self.urscreen= raw_display.Screen()
 		(self.mx,self.my)= self.urscreen.get_cols_rows()
+		self.urscreen.set_terminal_properties(colors=256, bright_is_bold=True, has_underline=True)
+		palette = [('I say', 'default,bold', 'default', 'bold'),]
 
 		self.editor= Editor()
 		self.editor.maxrow= self.my
@@ -50,7 +64,7 @@ class Pim:
 
 		self.frame= Frame(body=Filler(self.display), footer=Pile([self.status_line, self.command_line]))
 
-		self.loop = MainLoop(self.frame, screen=self.urscreen, input_filter=self.keypress, unhandled_input=self.keypress)
+		self.loop = MainLoop(self.frame, palette, screen=self.urscreen, input_filter=self.keypress, unhandled_input=self.keypress)
 
 		self.update()
 
@@ -86,7 +100,7 @@ class Pim:
 		elif self.editor.activeMode.mode == 0:
 			self.frame.set_focus("body")
 			self.display.set_edit_pos(self.editor.texts[self.editor.activeText].cursor)
-		(self.editor.col,self.editor.row)= self.display.get_cursor_coords((self.mx,))
+#        (self.editor.row,self.editor.col)= self.display.get_cursor_coords((self.mx,))
 #        self.editor.pref_col= self.display.get_pref_col((self.mx,))
 		self.command_line.set_edit_text(self.editor.lineText.text)
 		self.display.set_filler_text(self.editor.getText(self.topLine, self.topLine+self.my), self.mx)

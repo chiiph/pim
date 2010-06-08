@@ -14,17 +14,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from os import linesep
+from string import count, expandtabs
 
 class Line:
-	def __init__(self, text, mark= False):
+	def __init__(self, text, edt, mark= False):
 		self.data= text
+		self.editor = edt
 		# if a line is marked, then it means that it belongs to the line above
 		# this applies recursively and matters only for saving/line numbering
 		# in editing it should be treated as a normal line
 		self.marked= mark 
 	
 	def __len__(self):
-		return len(self.data)
+		return len(self.getData())
+	
+	def getData(self):
+		return expandtabs(self.data, self.editor.tabsize)
 
 class Text:
 	def __init__(self, edt):
@@ -34,6 +39,7 @@ class Text:
 		# self.postAction
 		self.selected= (0,0)
 		self.cursor= 0
+		self.inner_cursor = 0
 		self.fileName= ""
 		self.fd= None
 		self.lines= []
@@ -59,19 +65,20 @@ class Text:
 		# Add the first part without mark
 		tmp= tmpl[:size]
 		tmpl= tmpl[size:]
-		self.lines.append(Line(tmp))
+		self.lines.append(Line(l, self.editor))
+		return
 		# if the string is longer, add it as marked
 		while tmpl!="":
 			tmp= tmpl[:size]
 			tmpl= tmpl[size:]
-			self.lines.append(Line(tmp, True))
+			self.lines.append(Line(tmp, self.editor,True))
 	
 	def getText(self, lineInit, lineEnd):
 		""" Returns the cropped text from lineInit to lineEnd """
 		trimmed= self.lines[lineInit-1:lineEnd-lineInit]
 		txt= ""
 		for l in trimmed:
-			txt+= l.data+linesep
+			txt+= l.getData()+linesep
 
 		return txt
 	

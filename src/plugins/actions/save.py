@@ -59,11 +59,19 @@ class Save(EditCommand):
 
 	
 	def retab(self, text):
-		tabs= text.properties["tabs"]
-		tmp= text.text
-		for tab in tabs:
-			tmp= tmp[:tab]+"\t"+tmp[(tab+self.editor.tabsize):]
-		return tmp
+		text.cursor = 0
+		tmp = ""
+		while text.cursor<len(text.text):
+			pos = 1
+			if text.cursor in text.properties["tabs"]:
+				(line, chars) = self.editor.getLine(text)
+				col= text.cursor-chars
+				pos = self.editor.tabsize-(col%self.editor.tabsize)
+				tmp += "\t"
+			else:
+				tmp += text.text[text.cursor]
+			text.cursor += pos
+		text.setText(tmp)
 	
 	def register(self):
 		self.editor.activation["meta a"]= self

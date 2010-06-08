@@ -39,12 +39,12 @@ class EditCommand(object):
 		elif self.editor.lastKey == "right":
 			self.moveRight(text)
 		elif self.editor.lastKey == "home":
-			self.editor.col= 0
-			self.editor.updateCursor(text)
+			(line, chars)= self.editor.getLine(text)
+			text.cursor-=(text.cursor-chars)
 			self.editor.lastKey= ""
 		elif self.editor.lastKey == "end":
-			self.editor.col= len(text.lines[self.editor.getLine(text)])
-			self.editor.updateCursor(text)
+			(line, chars)= self.editor.getLine(text)
+			text.cursor+=(len(text.lines[line])-(text.cursor-chars))
 			self.editor.lastKey= ""
 		elif self.editor.lastKey == "ctrl left":
 			return
@@ -57,7 +57,7 @@ class EditCommand(object):
 		else:
 			text.setText(text.text[:text.cursor]+self.editor.lastKey+text.text[text.cursor:])
 			text.cursor+=1
-#            self.editor.updateRowCol(text)
+			self.editor.updateRowCol(text)
 
 	def moveRight(self, text):
 		length= 1

@@ -45,22 +45,22 @@ class Open(EditCommand):
 			text.setText("")
 	
 	def tab(self, text):
-		tabs= []
-		done= False
-		i= 0
-		tmp= text.text
-		while not done:
-			if i==len(tmp):
-				done= True
-			else:
-				if tmp[i]=='\t':
-					tmp= tmp[:i]+(" "*self.editor.tabsize)+tmp[i+1:]
-					tabs.append(i)
-					i+=self.editor.tabsize
-				else:
-					i+=1
-		text.setText(tmp)
-		text.properties["tabs"]= tabs
+		tabs = []
+		text.cursor = 0
+		while text.cursor<len(text.text):
+			self.editor.logger.log(str(text.cursor)+","+str(len(text.text)))
+			pos = 1
+			if text.text[text.cursor]=='\t':
+				self.editor.logger.log("TAB!!")
+				(line, chars) = self.editor.getLine(text)
+				col= text.cursor-chars
+				pos = self.editor.tabsize-(col%self.editor.tabsize)
+				text.setText(text.text[:text.cursor]+(" "*pos)+text.text[text.cursor+1:])
+				tabs.append(text.cursor)
+			text.cursor += pos
+		text.cursor = 0
+		text.properties["tabs"] = tabs
+#        self.editor.logger.log(str(tabs))
 	
 	def register(self):
-		self.editor.activation["meta o"]= self
+		self.editor.activation["meta o"] = self

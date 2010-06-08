@@ -93,7 +93,7 @@ class Editor:
 		self.activeMode.run(self.lineText)
 	
 	def updateRowCol(self, text):
-		return
+#        return
 		there= False
 		i= 0
 		chars= 0
@@ -112,8 +112,8 @@ class Editor:
 				else:
 					self.row+= 1
 					chars+=len(text.lines[i])
-					if not text.lines[i].marked:
-						chars+= 1
+#                    if not text.lines[i].marked:
+#                        chars+= 1
 					i+=1
 			else:
 				there= True
