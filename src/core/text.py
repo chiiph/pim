@@ -86,29 +86,94 @@ class Text:
 		self.text= str
 		self.splitText()
 	
-#    def whichLine(self):
-#        there= False
-#        i= 0
-#        chars= 0
-#        row= 0
-#        col= 0
-#        while not there:
-#            if i<len(self.lines):
-#                tmp= chars+len(self.lines[i])+1
-#                if tmp>text.cursor and tmp<self.maxcol:
-#                    col= text.cursor-chars
-#                    there= True
-#                else:
-#                    row+= 1
-#                    chars+=(len(self.lines[i])+1)
-#                    i+=1
-#            else:
-#                there= True
-#        return (row, col)
-
 	def debug(self, init, end):
 		i= 0
 		print self.text
 		for l in self.getText(init, end):
 			print str(i)+" | "+l
 			i+=1
+	
+	def updateCursor(self):
+		""" Sets the cursor from the inner_cursor """
+
+		tmp_cursor = self.inner_cursor
+		self.inner_cursor = 0
+		self.cursor = 0
+
+		expanded = expandtabs(self.text, self.editor.tabsize)
+
+		while True:
+			if self.inner_cursor == tmp_cursor:
+				break
+
+			# The only "problem" are tabs, so first we handle those
+			if self.inner_cursor < len(self.text) and self.text[self.inner_cursor] == "\t":
+				# Find out how much tabs are in a role, if any
+				while self.inner_cursor != tmp_cursor and self.inner_cursor < len(self.text) and self.text[self.inner_cursor] == "\t":
+					self.inner_cursor += 1
+
+				# if there are any spaces after the tab chars, we need
+				# to advance inner_cursor properly
+				while self.inner_cursor != tmp_cursor and self.inner_cursor < len(self.text) and self.text[self.inner_cursor] == " ":
+					self.inner_cursor += 1
+
+				if self.inner_cursor >= len(self.text):
+					# If the cursor's at the end of the text
+					# then just push to the end both cursors
+					self.cursor = len(expanded)-1
+					self.inner_cursor = tmp_cursor
+					break
+
+				# else advance the spaces that correspond to the
+				# tab expantion + the spaces after the tabs
+				while self.cursor < len(expanded) and expanded[self.cursor] != self.text[self.inner_cursor]:
+					self.cursor += 1
+			elif self.cursor < len(expanded) and self.inner_cursor < len(self.text):
+				# Otherwise, it's another char, and just advance both cursors
+				self.cursor += 1
+				self.inner_cursor += 1
+			else:
+				self.cursor = tmp_cursor
+				self.inner_cursor = len(self.text)-1
+	
+	def updateInnerCursor(self):
+		""" Sets the inner_cursor from cursor """
+
+		tmp_cursor = self.cursor
+		self.inner_cursor = 0
+		self.cursor = 0
+
+		expanded = expandtabs(self.text, self.editor.tabsize)
+
+		while True:
+			if self.cursor == tmp_cursor:
+				break
+
+			if self.inner_cursor < len(self.text) and self.text[self.inner_cursor] == "\t":
+				# The only "problem" are tabs, so first we handle those
+				# Find out how much tabs are in a role, if any
+				while self.inner_cursor < len(self.text) and self.text[self.inner_cursor] == "\t":
+					self.inner_cursor += 1
+
+				# if there are any spaces after the tab chars, we need
+				# to advance inner_cursor properly
+				while self.inner_cursor < len(self.text) and self.text[self.inner_cursor] == " ":
+					self.inner_cursor += 1
+
+				if self.inner_cursor >= len(self.text):
+					# If the cursor's at the end of the text
+					# then just push to the end both cursors
+					self.cursor = tmp_cursor
+					self.inner_cursor = len(self.text)-1
+				else:
+					# else advance the spaces that correspond to the
+					# tab expantion + the spaces after the tabs
+					while self.cursor < len(expanded) and expanded[self.cursor] != self.text[self.inner_cursor]:
+						self.cursor += 1
+			elif self.cursor < len(expanded) and self.inner_cursor < len(self.text):
+				# Otherwise, it's another char, and just advance both cursors
+				self.cursor += 1
+				self.inner_cursor += 1
+			else:
+				self.cursor = tmp_cursor
+				self.inner_cursor = len(self.text)-1
