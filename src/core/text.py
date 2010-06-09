@@ -43,6 +43,8 @@ class Text:
 		self.cursor = 0 # cursor for the tab expanded text
 		self.inner_cursor = 0 # cursor for the actual text
 		self.line_pos = 0 # cursor for the line
+		self.pref_col = 1 # preferred column to jump to in navigation
+		self.col = 1 # record the actual column
 
 		self.fileName= ""
 		self.fd= None
