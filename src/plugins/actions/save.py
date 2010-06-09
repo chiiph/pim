@@ -30,48 +30,16 @@ class Save(EditCommand):
 	
 	def run(self,text):
 		active= self.editor.texts[self.editor.activeText]
-#        if self.stage== 0: # Check what's the name to save the file
-#            text.setText(active.fileName)
-#            text.cursor= len(active.fileName)
-#            self.stage= 1
-#            if self.editor.lastKey != "enter":
-#                super(Save, self).run(text)
-#        elif self.stage== 1 and self.editor.lastKey != "enter":
-#            super(Save, self).run(text)
-#        elif self.stage== 1:
-#            file= open(active.fileName, "w")
-#            file.write(self.retab(active))
-#            file.close()
-#            self.editor.activateDefaultMode()
-
-#            self.message= "Saved"
-#            text.setText("")
 		if active.fileName == "":
 			self.message= "Nothing to do here..."
 			return
 		
 		file= open(active.fileName, "w")
-		file.write(self.retab(active))
+		file.write(active.text)
 		file.close()
 		self.editor.activateDefaultMode()
 
 		self.editor.status_message= "Saved"
-
-	
-	def retab(self, text):
-		text.cursor = 0
-		tmp = ""
-		while text.cursor<len(text.text):
-			pos = 1
-			if text.cursor in text.properties["tabs"]:
-				(line, chars) = self.editor.getLine(text)
-				col= text.cursor-chars
-				pos = self.editor.tabsize-(col%self.editor.tabsize)
-				tmp += "\t"
-			else:
-				tmp += text.text[text.cursor]
-			text.cursor += pos
-		text.setText(tmp)
 	
 	def register(self):
 		self.editor.activation["meta a"]= self

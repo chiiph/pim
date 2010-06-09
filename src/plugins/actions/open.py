@@ -39,27 +39,27 @@ class Open(EditCommand):
 			super(Open, self).run(text)
 		elif self.stage== 1:
 			active.load(text.text)
-			self.tab(active)
+#            self.tab(active)
 			self.editor.activateDefaultMode()
 			self.editor.status_message= "Opened file "+text.text
 			text.setText("")
 	
-	def tab(self, text):
-		tabs = []
-		text.cursor = 0
-		while text.cursor<len(text.text):
-			self.editor.logger.log(str(text.cursor)+","+str(len(text.text)))
-			pos = 1
-			if text.text[text.cursor]=='\t':
-				self.editor.logger.log("TAB!!")
-				(line, chars) = self.editor.getLine(text)
-				col= text.cursor-chars
-				pos = self.editor.tabsize-(col%self.editor.tabsize)
-				text.setText(text.text[:text.cursor]+(" "*pos)+text.text[text.cursor+1:])
-				tabs.append(text.cursor)
-			text.cursor += pos
-		text.cursor = 0
-		text.properties["tabs"] = tabs
+#    def tab(self, text):
+#        tabs = []
+#        text.cursor = 0
+#        while text.cursor<len(text.text):
+#            self.editor.logger.log(str(text.cursor)+","+str(len(text.text)))
+#            pos = 1
+#            if text.text[text.cursor]=='\t':
+#                self.editor.logger.log("TAB!!")
+#                (line, chars) = self.editor.getLine(text)
+#                col= text.cursor-chars
+#                pos = self.editor.tabsize-(col%self.editor.tabsize)
+#                text.setText(text.text[:text.cursor]+(" "*pos)+text.text[text.cursor+1:])
+#                tabs.append(text.cursor)
+#            text.cursor += pos
+#        text.cursor = 0
+#        text.properties["tabs"] = tabs
 #        self.editor.logger.log(str(tabs))
 	
 	def register(self):

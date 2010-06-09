@@ -13,7 +13,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from os import linesep
+from os import linesep, open, fdopen, O_RDONLY, O_CREAT
 from string import count, expandtabs
 
 class Line:
@@ -38,8 +38,12 @@ class Text:
 		self.mode= None
 		# self.postAction
 		self.selected= (0,0)
-		self.cursor= 0
-		self.inner_cursor = 0
+
+		# Navigation marks
+		self.cursor = 0 # cursor for the tab expanded text
+		self.inner_cursor = 0 # cursor for the actual text
+		self.line_pos = 0 # cursor for the line
+
 		self.fileName= ""
 		self.fd= None
 		self.lines= []
@@ -49,7 +53,8 @@ class Text:
 	def load(self, fileName):
 		""" Loads the fileName text """
 		self.fileName= fileName
-		self.fd= open(fileName, "r")
+		self.fd= open(fileName, O_RDONLY | O_CREAT)
+		self.fd = fdopen(self.fd)
 		self.text= self.fd.read()
 		self.splitText()
 	
@@ -78,6 +83,13 @@ class Text:
 		trimmed= self.lines[lineInit-1:lineEnd-lineInit]
 		txt= ""
 		for l in trimmed:
+			txt+= l.getData()+linesep
+
+		return txt
+	
+	def getAllText(self):
+		txt= ""
+		for l in self.lines:
 			txt+= l.getData()+linesep
 
 		return txt

@@ -31,10 +31,9 @@ class Editor:
 		self.lineText= Text(self) # Text object for the command_line
 		self.baseProperties= dict() # Plugin provided properties
 
-		# Set cursor's first position
 		self.row= 0
-		self.col= 0
-		self.pref_col= 0
+		self.col= 1
+		self.pref_col= 1
 		
 		self.maxrow= 0
 		self.maxcol= 0
@@ -42,7 +41,7 @@ class Editor:
 		self.activation= dict() # (keyCode string, plugin object)
 		self.activeMode= None
 
-		self.tabsize= 3
+		self.tabsize= 4
 
 		self.actions= dict()
 		self.states= dict()
@@ -79,11 +78,6 @@ class Editor:
 		oldMode= self.activeMode
 		self.activeMode= self.activation.get(self.lastKey, self.activeMode)
 		change= oldMode!=self.activeMode
-		if change:
-			if self.activeMode.mode == 1:
-				self.updateRowCol(self.lineText)
-			elif self.activeMode.mode == 0:
-				self.updateRowCol(self.texts[self.activeText])
 		return change
 	
 	def run(self):
@@ -91,32 +85,6 @@ class Editor:
 	
 	def runLine(self):
 		self.activeMode.run(self.lineText)
-	
-	def updateRowCol(self, text):
-#        return
-		there= False
-		i= 0
-		chars= 0
-		self.row= 0
-		self.col= 0
-		while not there:
-			if i<len(text.lines):
-				tmp= chars+len(text.lines[i])
-				if not text.lines[i].marked:
-					tmp+= 1
-				if tmp>text.cursor:
-					self.col= text.cursor-chars
-#                    if text.lines[i].marked:
-#                        self.col+= 1
-					there= True
-				else:
-					self.row+= 1
-					chars+=len(text.lines[i])
-#                    if not text.lines[i].marked:
-#                        chars+= 1
-					i+=1
-			else:
-				there= True
 	
 	def getLine(self, text):
 		there= False
@@ -140,21 +108,6 @@ class Editor:
 				there= True
 		return (line, chars)
 
-	def updateCursor(self, text):
-		i= 0
-		sumat= 0
-		for l in text.lines:
-			if i==self.row:
-				text.cursor= sumat+self.col
-				if l.marked:
-					text.cursor-=1
-				break
-			else:
-				sumat+=len(l)
-				if not l.marked:
-					sumat+=1
-				i+= 1
-	
 	def getText(self, init, end):
 		txt= ""
 		if len(self.texts)>0:

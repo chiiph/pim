@@ -57,7 +57,7 @@ class EditCommand(object):
 		else:
 			text.setText(text.text[:text.cursor]+self.editor.lastKey+text.text[text.cursor:])
 			text.cursor+=1
-			self.editor.updateRowCol(text)
+#            self.editor.updateRowCol(text)
 
 	def moveRight(self, text):
 		length= 1

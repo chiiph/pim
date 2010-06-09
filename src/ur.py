@@ -73,7 +73,7 @@ class Pim:
 	def keypress(self, key, raw):
 		self.editor.lastKey= key[0] # get the last key pressed
 
-		self.editor.logger.log(self.editor.lastKey)
+#        self.editor.logger.log(self.editor.lastKey)
 
 		# change the mode if needed
 		changed= self.editor.changeMode()
