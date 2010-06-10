@@ -82,14 +82,14 @@ class Edit:
 			text.cursor-=1
 	
 	def moveRight(self, text):
+		self.editor.logger.log("-> col: "+str(text.col)+", line_pos: "+str(text.line_pos))
 		# if the last char we move right of is the newline one
 		if text.inner_cursor > 0 and text.text[text.inner_cursor-1] == "\n":
 			text.line_pos += 1
-			text.pref_col = 1
-			text.col = 1
+			text.pref_col = text.col = 0
 			self.editor.logger.log("new line")
 
-		if text.inner_cursor<len(text.text):
+		if text.inner_cursor < len(text.text):
 			length = 1
 			col = self.getCol(text)
 			# tab is special since it's displayed as multiple spaces
@@ -119,45 +119,48 @@ class Edit:
 		return text.col
 	
 	def moveLeft(self, text):
+		self.editor.logger.log("<- col: "+str(text.col)+", line_pos: "+str(text.line_pos))
 		# if the last char we move left of is the newline one
 		if text.inner_cursor + 1 < len(text.text) and text.text[text.inner_cursor+1] == "\n":
 			text.line_pos -= 1
-			text.pref_col = 1
-			text.col = 1
+			text.pref_col = text.col = len(text.lines[text.line_pos])
+			self.editor.logger.log("back line")
 
-		if text.cursor>0:
-			text.inner_cursor -= 1
-			text.cursor -= 1
-			text.col -= 1
+		if text.inner_cursor > 0:
+			length = 1
 			# tab's the special case
-			if text.text[text.inner_cursor] == "\t":
+			if text.inner_cursor < len(text.text) and text.text[text.inner_cursor] == "\t":
 				# lets see what's the char behind this tab
 				if text.inner_cursor > 0:
 					if text.text[text.inner_cursor-1] == "\t":
 						# if there's another tab, just move the rest of the tabsize
-						text.cursor -= self.editor.tabsize - 1
-						text.col -= self.editor.tabsize - 1
+						self.editor.logger.log("oootro tab")
+						length += (self.editor.tabsize - 1)
 					elif text.text[text.inner_cursor-1] == " ":
 						# for now we handle this like vim does:
 						# if there's a space, consider it part of the tab
 						i = 0
+						self.editor.logger.log("un espacio")
 						while (text.cursor - i) > 0 \
 							and text.getAllText()[text.cursor - i] == " "\
 							and i < self.editor.tabsize:
-							text.cursor -= 1
-							text.col -= 1
+							length += 1
 							i += 1
 					else:
 						# while we are still in the space defined tab
 						# keep going back
+						i = 0
+						self.editor.logger.log("comun")
 						while text.cursor > 0 and \
-							text.getAllText()[text.cursor] == " ":
-							text.cursor -= 1
-							text.col -= 1
+							text.getAllText()[text.cursor - i] == " ":
+							length += 1
+							i += 1
 						# and we correct the cursor since we want to
 						# stand in the tab, no before it
-						text.cursor += 1
-						text.col += 1
+						length -= 1
+			text.inner_cursor -= 1
+			text.cursor -= length
+			text.col -= length
 			text.pref_col = text.col
 		
 	def backspace(self, text):
@@ -170,27 +173,22 @@ class Edit:
 	
 	def gohome(self, text):
 		if text.inner_cursor > 0 and text.cursor > 0:
-			text.cursor -= self.getCol(text)
-			text.inner_cursor -= 1
 			while text.inner_cursor > 0 and text.text[text.inner_cursor] != "\n":
-				text.inner_cursor -= 1
+				self.moveLeft(text)
 			if text.text[text.inner_cursor] == "\n":
-				text.inner_cursor += 1
+				self.moveRight(text)
 
 	def goend(self, text):
-		if text.inner_cursor < len(text.text)-1 and text.cursor < len(text.getAllText()):
-			text.cursor -= self.getCol(text)
-			text.cursor += (len(text.lines[text.line_pos]))
-			text.inner_cursor += 1
-			while text.inner_cursor > 0 and text.text[text.inner_cursor] != "\n":
-				text.inner_cursor += 1
+		if text.inner_cursor < len(text.text)-1:
+			while text.inner_cursor < len(text.text)-1 and text.text[text.inner_cursor] != "\n":
+				self.moveRight(text)
 	
 	def godown(self, text):
 		if text.line_pos < (len(text.lines)-1):
-			# first go to the end of the current line
-			self.goend(text)
 			# backup the pref_col
 			pref_col = text.pref_col
+			# first go to the end of the current line
+			self.goend(text)
 			# go to the next line
 			self.moveRight(text)
 			if pref_col < len(text.lines[text.line_pos].getData()):
