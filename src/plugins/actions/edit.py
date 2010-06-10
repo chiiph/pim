@@ -82,6 +82,9 @@ class Edit:
 			text.cursor-=1
 	
 	def moveRight(self, text):
+#        if text.col == 0:
+#            text.col = text.pref_col = 1
+
 		self.editor.logger.log("-> col: "+str(text.col)+", line_pos: "+str(text.line_pos))
 		# if the last char we move right of is the newline one
 		if text.inner_cursor > 0 and text.text[text.inner_cursor-1] == "\n":
@@ -119,49 +122,55 @@ class Edit:
 		return text.col
 	
 	def moveLeft(self, text):
-		self.editor.logger.log("<- col: "+str(text.col)+", line_pos: "+str(text.line_pos))
-		# if the last char we move left of is the newline one
-		if text.inner_cursor + 1 < len(text.text) and text.text[text.inner_cursor+1] == "\n":
-			text.line_pos -= 1
-			text.pref_col = text.col = len(text.lines[text.line_pos])
-			self.editor.logger.log("back line")
+#        if text.col == 0:
+#            text.col = text.pref_col = 1
+#        self.editor.logger.log("<- col: "+str(text.col)+", line_pos: "+str(text.line_pos))
 
 		if text.inner_cursor > 0:
 			length = 1
-			# tab's the special case
-			if text.inner_cursor < len(text.text) and text.text[text.inner_cursor] == "\t":
-				# lets see what's the char behind this tab
-				if text.inner_cursor > 0:
-					if text.text[text.inner_cursor-1] == "\t":
-						# if there's another tab, just move the rest of the tabsize
-						self.editor.logger.log("oootro tab")
-						length += (self.editor.tabsize - 1)
-					elif text.text[text.inner_cursor-1] == " ":
-						# for now we handle this like vim does:
-						# if there's a space, consider it part of the tab
-						i = 0
-						self.editor.logger.log("un espacio")
-						while (text.cursor - i) > 0 \
-							and text.getAllText()[text.cursor - i] == " "\
-							and i < self.editor.tabsize:
-							length += 1
-							i += 1
-					else:
-						# while we are still in the space defined tab
-						# keep going back
-						i = 0
-						self.editor.logger.log("comun")
-						while text.cursor > 0 and \
-							text.getAllText()[text.cursor - i] == " ":
-							length += 1
-							i += 1
-						# and we correct the cursor since we want to
-						# stand in the tab, no before it
-						length -= 1
+			# we update first the inner_cursor
 			text.inner_cursor -= 1
+			# tab's the special case
+			if 0 < text.inner_cursor < len(text.text) and text.text[text.inner_cursor] == "\t":
+				# lets see what's the char behind this tab
+				if text.text[text.inner_cursor-1] == "\t":
+					# if there's another tab, just move the rest of the tabsize
+					length = self.editor.tabsize
+				elif text.text[text.inner_cursor-1] == " ":
+					# for now we handle this like vim does:
+					# if there's a space, consider it part of the tab
+					i = 0
+					length = 0
+					self.editor.logger.log("un espacio")
+					while (text.cursor - i) > 0 \
+						and text.getAllText()[text.cursor - i] == " "\
+						and i <= self.editor.tabsize:
+						length += 4
+						i += 1
+				else:
+					# while we are still in the space defined tab
+					# keep going back
+					i = 0
+					length = 0
+					self.editor.logger.log("comun")
+					while text.cursor > 0 and \
+						text.getAllText()[text.cursor - i] == " ":
+						length += 1
+						i += 1
+					# and we correct the cursor since we want to
+					# stand in the tab, no before it
+					length -= 1
 			text.cursor -= length
+
+		# if the last char we move left of is the newline one
+		if text.inner_cursor < len(text.text) and text.text[text.inner_cursor] == "\n":
+			text.line_pos -= 1
+			text.pref_col = text.col = len(text.lines[text.line_pos]) + 1
+			self.editor.logger.log("back line")
+		else:
 			text.col -= length
-			text.pref_col = text.col
+		text.pref_col = text.col
+
 		
 	def backspace(self, text):
 		if text.inner_cursor > 0:
@@ -173,6 +182,10 @@ class Edit:
 	
 	def gohome(self, text):
 		if text.inner_cursor > 0 and text.cursor > 0:
+			# if we are standing at the end of the line
+			if text.text[text.inner_cursor] == "\n":
+				# just move to the left, and then gohome
+				self.moveLeft(text)
 			while text.inner_cursor > 0 and text.text[text.inner_cursor] != "\n":
 				self.moveLeft(text)
 			if text.text[text.inner_cursor] == "\n":
